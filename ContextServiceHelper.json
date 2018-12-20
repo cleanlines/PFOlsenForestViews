@@ -1,3 +1,5 @@
 {
-  "mapname":"Context"
+  "mapname":"Context",
+  "baseprjx": "C:/ZZCloud/Dropbox/Work/PFOlsen/ArcGISPro/PFOlsen/PFOlsen.aprx",
+  "layerfile":"C:/ZZCloud/Dropbox/Work/PFOlsen/Scripting/layers/PFOSecuredBPZone.lyrx"
 }

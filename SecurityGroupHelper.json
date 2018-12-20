@@ -3,5 +3,5 @@
   "securitytable":"PFOLSEN.GISADMIN.PFO_Secured_BP_Zone",
   "securityfields":["BP_Name","OBJECTID"],
   "_fixme":"add a _ to the securitygroup tag - issues with queries and spaces",
-  "securitytags":"python,automate,security group"
+  "securitytags":"python,automate,securitygroup"
 }

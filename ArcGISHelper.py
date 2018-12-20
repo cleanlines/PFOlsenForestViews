@@ -18,7 +18,6 @@ class ArcGISHelper(BaseObject):
         self.log = lambda x: print(x)
         self.log("ArcGISHelper initialised")
 
-
     def get_base_services(self): #
         item_id_list = self._gis.content.search(query=f'title:"_Data" AND tags:"{self._config.basesearchtags}"', item_type="Feature Service")
         print(item_id_list)
