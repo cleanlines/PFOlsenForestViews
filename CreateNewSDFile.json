@@ -1,0 +1,19 @@
+{
+  "sdfileoutlocation": "C:/ZZCloud/Dropbox/Work/PFOlsen/Scripting/sdfiles",
+  "sdfilelist": [
+    "core.sd",
+    "context.sd"
+  ],
+  "core.sd": {
+    "servicename": "Core_Data",
+    "summary": "This is core forest data",
+    "tags": "PFOlsen,core,forest,customer",
+    "description": "I like to automate stuff."
+  },
+  "context.sd": {
+    "servicename": "Context_Data",
+    "summary": "This is context forest data",
+    "tags": "PFOlsen,context,forest",
+    "description": "I like to automate stuff yeah."
+  }
+}

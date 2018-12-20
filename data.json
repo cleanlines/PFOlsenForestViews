@@ -1,0 +1,745 @@
+{
+  'layers': [
+    {
+      'id': 0,
+      'popupInfo': {
+        'title': 'Forest: {bp_name}',
+        'fieldInfos': [
+          {
+            'fieldName': 'objectid',
+            'label': 'OBJECTID',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'bp_name',
+            'label': 'BP Name',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'forest_name',
+            'label': 'Forest Name',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'forestcode',
+            'label': 'Forest Code',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'realforestcode',
+            'label': 'Other Forest Code',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'tenure',
+            'label': 'Tenure',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'landowner',
+            'label': 'Land Owner',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'comments',
+            'label': 'Comments',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'globalid',
+            'label': 'globalid',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'certification',
+            'label': 'Certification',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'created_user',
+            'label': 'created_user',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'created_date',
+            'label': 'created_date',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'last_edited_user',
+            'label': 'last_edited_user',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'last_edited_date',
+            'label': 'last_edited_date',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          }
+        ],
+        'description': None,
+        'showAttachments': True,
+        'mediaInfos': []
+      },
+      'layerDefinition': {
+        'definitionExpression': "bp_name = 'OTPP New Zealand Forest Investments Limited'",
+        'defaultVisibility': False
+      }
+    },
+    {
+      'id': 1,
+      'popupInfo': {
+        'title': 'Cutover Actual: {forest_name}',
+        'fieldInfos': [
+          {
+            'fieldName': 'objectid',
+            'label': 'OBJECTID',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'forest_name',
+            'label': 'Forest Name',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'forestcode',
+            'label': 'Forest Code',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'description',
+            'label': 'Description',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'reportdate',
+            'label': 'Report Date',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'areaha',
+            'label': 'Area Ha',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 2,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'landunit',
+            'label': 'LandUnit',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'geounit',
+            'label': 'GeoUnit',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'mappingsource',
+            'label': 'Mapping Source',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'sourcephotodate',
+            'label': 'Source Photo Date',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'comment',
+            'label': 'Comment',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'createdby',
+            'label': 'CreatedBy',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'createddate',
+            'label': 'CreatedDate',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'modifiedby',
+            'label': 'ModifiedBy',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'modifieddate',
+            'label': 'ModifiedDate',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'globalid',
+            'label': 'globalid',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'creationdate',
+            'label': 'creationdate',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'creator',
+            'label': 'creator',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'editdate',
+            'label': 'editdate',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'editor',
+            'label': 'editor',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          }
+        ],
+        'description': None,
+        'showAttachments': True,
+        'mediaInfos': []
+      }
+    },
+    {
+      'id': 2,
+      'popupInfo': {
+        'title': 'LandUnit: {forest_name}',
+        'fieldInfos': [
+          {
+            'fieldName': 'objectid',
+            'label': 'OBJECTID',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'forest_name',
+            'label': 'Forest Name',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'description',
+            'label': 'Description',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'forestcode',
+            'label': 'Forest Code',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'cpt',
+            'label': 'CPT',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'stand',
+            'label': 'Stand',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'specieslabel',
+            'label': 'Species',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'yoe',
+            'label': 'YOE',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'circa',
+            'label': 'Circa',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'regen',
+            'label': 'Regen',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'areaha',
+            'label': 'Area Ha',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 2,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'geounit_typedescription',
+            'label': 'GeoUnit Type',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'stockedstatus',
+            'label': 'Stocked Status',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'prodstatus',
+            'label': 'Productive Status',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'bp_name',
+            'label': 'BP Name',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'realforestcode',
+            'label': 'Other Forest Code',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'proteco_longname',
+            'label': 'ProtEco Long Name',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'proteco_shortname',
+            'label': 'ProtEco Short Name',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'protectivestatus',
+            'label': 'Protective Status',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'protectivefunction',
+            'label': 'Protective Function',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'proteco_multiple',
+            'label': 'ProtEco Multiple',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'landunit',
+            'label': 'LandUnit',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'parentlandunit',
+            'label': 'Parent LandUnit',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'geounit',
+            'label': 'GeoUnit',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'geounittype',
+            'label': 'GeoUnit Code',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'geounitseq',
+            'label': 'GeoUnitSeq',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'crop',
+            'label': 'Crop',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'createdby',
+            'label': 'CreatedBy',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'createddate',
+            'label': 'CreatedDate',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'modifiedby',
+            'label': 'ModifiedBy',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'modifieddate',
+            'label': 'ModifiedDate',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'globalid',
+            'label': 'globalid',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'landunitstatus',
+            'label': 'LandUnit Status',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'siteindex',
+            'label': 'Site Index',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 2,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'index300',
+            'label': 'Index 300',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 2,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'bpnbr',
+            'label': 'BPNbr',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'places': 0,
+              'digitSeparator': True
+            }
+          },
+          {
+            'fieldName': 'comments',
+            'label': 'Comments',
+            'isEditable': True,
+            'tooltip': '',
+            'visible': True,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'creationdate',
+            'label': 'creationdate',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'creator',
+            'label': 'creator',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          },
+          {
+            'fieldName': 'editdate',
+            'label': 'editdate',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox',
+            'format': {
+              'dateFormat': 'shortDateShortTime'
+            }
+          },
+          {
+            'fieldName': 'editor',
+            'label': 'editor',
+            'isEditable': False,
+            'tooltip': '',
+            'visible': False,
+            'stringFieldOption': 'textbox'
+          }
+        ],
+        'description': None,
+        'showAttachments': True,
+        'mediaInfos': []
+      },
+      'layerDefinition': {
+        'definitionExpression': "bp_name = 'OTPP New Zealand Forest Investments Limited'",
+        'defaultVisibility': True
+      }
+    }
+  ]
+}
