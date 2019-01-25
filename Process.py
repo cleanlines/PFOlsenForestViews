@@ -134,18 +134,20 @@ class ContextServiceHelper(BaseObject, Process):
         fd = list(groups.keys())[0]
         for a_group in groups[fd]:
             print(fd, a_group)
-            self.create_new_prjx(fd,a_group)
+            self.create_new_prjx(fd, a_group)
 
 
         #CreateSDFiles().create_sd_files_from_map(self._config.coremapname,pro_prjx=new_prjx)
         #ArcGISHelper().add_items_to_portal() # this function needs to be slightly modified - not generic enough
-    def create_new_prjx(self,a_field,a_group):
+
+        #### NOTE!!! Removed the secured BP zone from the base project
+    def create_new_prjx(self, a_field, a_group):
         aprx = arcpy.mp.ArcGISProject(self._config.baseprjx)
         tempprjx = TempFileName.generate_temporary_file_name(suffix=".aprx")
         print(tempprjx)
         aprx.saveACopy(tempprjx)
-        aprx2 = arcpy.mp.ArcGISProject(tempprjx)
-        m = aprx2.listMaps(self._config.mapname)[0]
+        working_aprx = arcpy.mp.ArcGISProject(tempprjx)
+        m = working_aprx.listMaps(self._config.mapname)[0]
         lyr_file = arcpy.mp.LayerFile(self._config.layerfile)
 
         select_lyr = lyr_file.listLayers("*")[0]
@@ -156,36 +158,26 @@ class ContextServiceHelper(BaseObject, Process):
             for row in cursor:
                 print(row)
 
-
-        #m.addLayer(lyr_file, "TOP")
         # we know need to do a spatial join between the security polygon and all the other layers
+        count = 0
         for a_layer in m.listLayers("*"):
             print(a_layer.name)
             if a_layer.isBasemapLayer:
                 continue
-            d = a_layer.name.replace(" ", "")
-            temp_lyr_name = f"{d}_tmp_lyr"
-            print(temp_lyr_name)
-            arcpy.MakeFeatureLayer_management(a_layer, temp_lyr_name)
-            arcpy.SelectLayerByLocation_management(temp_lyr_name, 'INTERSECT', temp_lyr, 30, 'ADD_TO_SELECTION')
-            result = arcpy.GetCount_management(temp_lyr_name)
-            print("done selection ", a_layer.name,f"count:{result}")
-            # if a_layer.supports("DATASOURCE") and a_layer.dataSource:
-            #     fields = arcpy.ListFields(a_layer.dataSource)
-            #     for a_fd in fields:
-            #         print(a_fd.name,",",a_field)
-            #     print([a_fd.name for a_fd in fields if a_fd.name.upper() == a_field.upper()])
-            aprx.save()
+
+            result = arcpy.GetCount_management(a_layer)
+            print("before selection ", a_layer.name, f"count:{result}")
+            arcpy.SelectLayerByLocation_management(a_layer, 'INTERSECT', temp_lyr, 30)
+            count += 1
+            result = arcpy.GetCount_management(a_layer)
+            print("after selection ", a_layer.name, f"count:{result}")
+            working_aprx.save()
+
+        print(working_aprx.filePath)
 
         # dec 2018 you wrere here. you were lookig at doing the selection and then publishing - the selection happens but when you save the prjx the selections aren't there. Once you've done that you need to publish. Note you have to change the publish process as this reads local config and won't name the service the right thing - you will have to update to make sure the conext service format is the same as the core views - context_data_object_id_service or something.
-
-        print("fjlejflkejwflwejflewjflwfjlf")
-        sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=tempprjx)
+        sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=working_aprx.filePath)
         ArcGISHelper().add_items_to_portal(sdfiles)
-        print("fjlejflkejwflwejflewjflwfjlf")
-        tempprjx2 = TempFileName.generate_temporary_file_name(suffix=".aprx")
-        aprx2.saveACopy(tempprjx2)
-        print(tempprjx2, " saved.")
         #arcpy.Delete_management(temp_lyr)
 
     class Factory:
