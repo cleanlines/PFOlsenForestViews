@@ -8,6 +8,7 @@ from ArcGISHelper import ArcGISHelper
 from Singleton import Singleton
 import datetime
 from CreateSDFiles import CreateSDFiles
+from FileGeodatabaseHelper import FileGeodatabaseHelper
 
 
 class ProcessBucket(object, metaclass=Singleton): pass
@@ -134,9 +135,15 @@ class ContextServiceHelper(BaseObject, Process):
         fd = list(groups.keys())[0]
         for a_group in groups[fd]:
             print(fd, a_group)
-            self.create_new_prjx(fd, a_group)
-
-
+            an_id = "".join([s[0] for s in a_group.split()])
+            proj = self.create_new_prjx(fd, a_group)
+            # we have done a selection on the data and created a prjx - now create the SD and share
+            #print(proj)
+            #   sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=proj, service_id=an_id)
+            #print(sdfiles)
+            ####sdfiles = {"Context_Data_ONZFIL":"C:/Users/fsh/AppData/Local/Temp/_ags_201901311039240724276evcz0md.sd"}
+            # live ArcGISHelper().add_items_to_portal(sdfiles)
+            break # DEBUG
         #CreateSDFiles().create_sd_files_from_map(self._config.coremapname,pro_prjx=new_prjx)
         #ArcGISHelper().add_items_to_portal() # this function needs to be slightly modified - not generic enough
 
@@ -144,8 +151,11 @@ class ContextServiceHelper(BaseObject, Process):
     def create_new_prjx(self, a_field, a_group):
         aprx = arcpy.mp.ArcGISProject(self._config.baseprjx)
         tempprjx = TempFileName.generate_temporary_file_name(suffix=".aprx")
+        temp_filegeodb = FileGeodatabaseHelper().new_file_geodatabase()
         print(tempprjx)
+        print(temp_filegeodb)
         aprx.saveACopy(tempprjx)
+        #del aprx
         working_aprx = arcpy.mp.ArcGISProject(tempprjx)
         m = working_aprx.listMaps(self._config.mapname)[0]
         lyr_file = arcpy.mp.LayerFile(self._config.layerfile)
@@ -162,7 +172,10 @@ class ContextServiceHelper(BaseObject, Process):
         count = 0
         for a_layer in m.listLayers("*"):
             print(a_layer.name)
-            if a_layer.isBasemapLayer:
+            if a_layer.isBasemapLayer or not a_layer.isFeatureLayer:
+                continue
+
+            if 'Transport' not in a_layer.name:
                 continue
 
             result = arcpy.GetCount_management(a_layer)
@@ -171,13 +184,39 @@ class ContextServiceHelper(BaseObject, Process):
             count += 1
             result = arcpy.GetCount_management(a_layer)
             print("after selection ", a_layer.name, f"count:{result}")
+
+            #copy to new filegeodb and reset datasource
+            name = a_layer.dataSource.split('\\')[-1].split('.')[-1]
+            print(f"Name:{name}")
+            arcpy.CopyFeatures_management(a_layer, f"{temp_filegeodb}/{name}")
+            print(a_layer.dataSource.split('/')[-1])
+            print(a_layer.connectionProperties)
+            print(a_layer.dataSource)
+            con_props = {'connection_info':{'database': temp_filegeodb,
+                                            'authentication_mode': '',
+                                            'dbclient': '',
+                                            'db_connection_properties': '',
+                                            'password': '',
+                                            'instance': '',
+                                            'server': '',
+                                            'user': '',
+                                            'version': ''},
+                         'dataset': name,
+                         'workspace_factory': 'File Geodatabase',
+                         'feature_dataset': ''
+                         }
+            print(con_props)
+            a_layer.updateConnectionProperties(a_layer.connectionProperties, con_props, validate=False)
+            print(a_layer.connectionProperties)
             working_aprx.save()
 
-        print(working_aprx.filePath)
-
-        # dec 2018 you wrere here. you were lookig at doing the selection and then publishing - the selection happens but when you save the prjx the selections aren't there. Once you've done that you need to publish. Note you have to change the publish process as this reads local config and won't name the service the right thing - you will have to update to make sure the conext service format is the same as the core views - context_data_object_id_service or something.
-        sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=working_aprx.filePath)
-        ArcGISHelper().add_items_to_portal(sdfiles)
+        fp = working_aprx.filePath
+        del working_aprx
+        return fp
+        #
+        # Note you have to change the publish process as this reads local config and won't name the service the right thing - you will have to update to make sure the conext service format is the same as the core views - context_data_object_id_service or something.
+        #sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=working_aprx.filePath)
+        #ArcGISHelper().add_items_to_portal(sdfiles)
         #arcpy.Delete_management(temp_lyr)
 
     class Factory:
