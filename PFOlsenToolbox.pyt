@@ -24,6 +24,7 @@ class CommonTool(object):
         self.aperror_log = lambda msg : arcpy.AddError(str(msg))
         arcpy.SetLogHistory(False)
 
+#TODO: Review this for how we create Context Data (e.g. the service naming - make it the same as the bootstrap)
 
 class CreateNewSDFile(BaseObject.BaseObject, CommonTool):
     def __init__(self):

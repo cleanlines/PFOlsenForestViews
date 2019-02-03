@@ -139,10 +139,10 @@ class ContextServiceHelper(BaseObject, Process):
             proj = self.create_new_prjx(fd, a_group)
             # we have done a selection on the data and created a prjx - now create the SD and share
             #print(proj)
-            #   sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=proj, service_id=an_id)
-            #print(sdfiles)
+            sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=proj, service_id=an_id)
+            print(sdfiles)
             ####sdfiles = {"Context_Data_ONZFIL":"C:/Users/fsh/AppData/Local/Temp/_ags_201901311039240724276evcz0md.sd"}
-            # live ArcGISHelper().add_items_to_portal(sdfiles)
+            ArcGISHelper().add_items_to_portal(sdfiles)
             break # DEBUG
         #CreateSDFiles().create_sd_files_from_map(self._config.coremapname,pro_prjx=new_prjx)
         #ArcGISHelper().add_items_to_portal() # this function needs to be slightly modified - not generic enough
@@ -169,47 +169,62 @@ class ContextServiceHelper(BaseObject, Process):
                 print(row)
 
         # we know need to do a spatial join between the security polygon and all the other layers
-        count = 0
-        for a_layer in m.listLayers("*"):
+        # we have to reverse the order of layers processed for the addDataFromPath
+        layer_list = [l.name for l in m.listLayers("*")]
+        #for a_layer in m.listLayers("*"):
+        for layer_name in reversed(layer_list):
+            a_layer = m.listLayers(layer_name)[0]
             print(a_layer.name)
             if a_layer.isBasemapLayer or not a_layer.isFeatureLayer:
                 continue
-
-            if 'Transport' not in a_layer.name:
-                continue
-
+            # if 'Transport' not in a_layer.name:
+            #     continue
             result = arcpy.GetCount_management(a_layer)
             print("before selection ", a_layer.name, f"count:{result}")
             arcpy.SelectLayerByLocation_management(a_layer, 'INTERSECT', temp_lyr, 30)
-            count += 1
             result = arcpy.GetCount_management(a_layer)
             print("after selection ", a_layer.name, f"count:{result}")
-
             #copy to new filegeodb and reset datasource
             name = a_layer.dataSource.split('\\')[-1].split('.')[-1]
             print(f"Name:{name}")
-            arcpy.CopyFeatures_management(a_layer, f"{temp_filegeodb}/{name}")
-            print(a_layer.dataSource.split('/')[-1])
-            print(a_layer.connectionProperties)
-            print(a_layer.dataSource)
-            con_props = {'connection_info':{'database': temp_filegeodb,
-                                            'authentication_mode': '',
-                                            'dbclient': '',
-                                            'db_connection_properties': '',
-                                            'password': '',
-                                            'instance': '',
-                                            'server': '',
-                                            'user': '',
-                                            'version': ''},
-                         'dataset': name,
-                         'workspace_factory': 'File Geodatabase',
-                         'feature_dataset': ''
-                         }
-            print(con_props)
-            a_layer.updateConnectionProperties(a_layer.connectionProperties, con_props, validate=False)
-            print(a_layer.connectionProperties)
-            working_aprx.save()
+            # arcpy.CopyFeatures_management(a_layer, f"{temp_filegeodb}/{name}")
+            # we loose domains with copy features
+            arcpy.FeatureClassToFeatureClass_conversion(a_layer, temp_filegeodb, name)
+            # There is a bug in the Pro python API which doesnt allow the feature dataset property to be cleared.
 
+            # are you kidding me. You can't use a / here.
+            new_layer = m.addDataFromPath(f"{temp_filegeodb}\\{name}")
+            temp_lyrx_file = TempFileName().generate_temporary_file_name(suffix=".lyrx")
+            print(temp_lyrx_file)
+            a_layer.saveACopy(temp_lyrx_file)
+            arcpy.ApplySymbologyFromLayer_management(new_layer, temp_lyrx_file)#, update_symbology="MAINTAIN")
+            # reset all the usual stuff
+            new_layer.visible = a_layer.visible
+            new_layer.maxThreshold = a_layer.maxThreshold
+            new_layer.minThreshold = a_layer.minThreshold
+            new_layer.showLabels = a_layer.showLabels
+            new_layer.transparency = a_layer.transparency
+            # print(a_layer.dataSource.split('/')[-1])
+            # print(a_layer.connectionProperties)
+            # print(a_layer.dataSource)
+            # con_props = {'connection_info':{'database': temp_filegeodb,
+            #                                 'authentication_mode': '',
+            #                                 'dbclient': '',
+            #                                 'db_connection_properties': '',
+            #                                 'password': '',
+            #                                 'instance': '',
+            #                                 'server': '',
+            #                                 'user': '',
+            #                                 'version': ''},
+            #              'dataset': name,
+            #              'workspace_factory': 'File Geodatabase',
+            #              'feature_dataset': ''
+            #              }
+            # print(con_props)
+            # a_layer.updateConnectionProperties(a_layer.connectionProperties, con_props, validate=False)
+            # print(a_layer.connectionProperties)
+            m.removeLayer(a_layer)
+            working_aprx.save()
         fp = working_aprx.filePath
         del working_aprx
         return fp

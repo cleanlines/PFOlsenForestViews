@@ -12,14 +12,14 @@ class CreateSDFiles(BaseObject):
         self.log("CreateSDFiles initialised")
 
     @Decorator.timer
-    def create_sd_files_from_map(self, map_name=None, pro_prjx=None):
+    def create_sd_files_from_map(self, map_name=None, pro_prjx=None, service_id=""):
         sds = {}
         try:
             the_prj = pro_prjx if pro_prjx else self._config.baseprjx
             aprx = arcpy.mp.ArcGISProject(the_prj)
             if map_name in [m.name for m in aprx.listMaps()]:
                 service_object = getattr(self._config, map_name.lower())
-                service_name = service_object["servicename"]
+                service_name = service_object["servicename"] % service_id
                 sddraft_file = TempFileName.generate_temporary_file_name(suffix=".sddraft")
                 sdfile = TempFileName.generate_temporary_file_name(suffix=".sd")
                 m = aprx.listMaps(map_name)[0]
@@ -31,7 +31,7 @@ class CreateSDFiles(BaseObject):
                 sharing_draft.credits = ""
                 sharing_draft.exportToSDDraft(sddraft_file)
                 arcpy.StageService_server(sddraft_file, sdfile)
-                sds[map_name] = sdfile
+                sds[service_name] = sdfile
                 #sds.append()
         except Exception as e:
             self.errorlog(e)

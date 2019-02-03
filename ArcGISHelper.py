@@ -40,7 +40,7 @@ class ArcGISHelper(BaseObject):
                 print(item_id_list[0])
                 item = item_id_list[0]
                 self.log(f"Item {item} found - updating")
-                item.update(item_properties={"description":self._config.sdfiledescription % (a_map, datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"))}, data=sd)
+                item.update(item_properties={"description": self._config.sdfiledescription % (a_map, datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"))}, data=sd)
                 self.log(f"Item {item} found - sd updated")
             published_item = None
             try:

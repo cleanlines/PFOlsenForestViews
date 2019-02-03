@@ -6,13 +6,13 @@
   ],
   "core": {
     "servicename": "Core_Data",
-    "summary": "This is core forest datasets",
+    "summary": "These are core forest datasets",
     "tags": "core,forest,customer,python,automate,baseservice",
     "description": "Service Definition file for %s"
   },
   "context": {
-    "servicename": "Context_Data",
-    "summary": "This is context datasets for forestry customers",
+    "servicename": "Context_Data_%s",
+    "summary": "These are context datasets for forestry customers",
     "tags": "context,forest,python,automate,baseservice",
     "description": "Service Definition file for %s"
   }
