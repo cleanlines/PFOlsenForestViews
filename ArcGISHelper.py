@@ -62,11 +62,14 @@ class ArcGISHelper(BaseObject):
         self.log(item)
         if not item and create:
             if not create_dict:
+                # this may throw an error if the group exists but isn't tagged correctly.
+                self.log(f"item does not exist: {item}")
                 create_dict = {"title": group_name, "tags": tags}
             item = self._gis.groups.create_from_dict(dict=create_dict)
         else:
             self.log(f"item exists: {item}")
-        return item[0] if len(item) else item
+
+        return item[0] if isinstance(item, (list,)) else item
 
     def get_groups_from_tags(self, tags):
         return self._gis.groups.search(query=f'tags:"{tags}"')

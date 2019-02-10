@@ -19,7 +19,11 @@ class CreateSDFiles(BaseObject):
             aprx = arcpy.mp.ArcGISProject(the_prj)
             if map_name in [m.name for m in aprx.listMaps()]:
                 service_object = getattr(self._config, map_name.lower())
-                service_name = service_object["servicename"] % service_id
+                service_name = service_object["servicename"]
+                try:
+                    service_name = service_name % service_id
+                except Exception as e:
+                    self.errorlog(str(e))
                 sddraft_file = TempFileName.generate_temporary_file_name(suffix=".sddraft")
                 sdfile = TempFileName.generate_temporary_file_name(suffix=".sd")
                 m = aprx.listMaps(map_name)[0]

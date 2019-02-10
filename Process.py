@@ -115,6 +115,7 @@ class FeatureLayerViewHelper(BaseObject, Process):
 
 class CoreServiceHelper(BaseObject, Process):
     def run_process(self):
+        print(self._config.mapname)
         sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname)
         ArcGISHelper().add_items_to_portal(sdfiles)
 
@@ -187,12 +188,7 @@ class ContextServiceHelper(BaseObject, Process):
             #copy to new filegeodb and reset datasource
             name = a_layer.dataSource.split('\\')[-1].split('.')[-1]
             print(f"Name:{name}")
-            # arcpy.CopyFeatures_management(a_layer, f"{temp_filegeodb}/{name}")
-            # we loose domains with copy features
             arcpy.FeatureClassToFeatureClass_conversion(a_layer, temp_filegeodb, name)
-            # There is a bug in the Pro python API which doesnt allow the feature dataset property to be cleared.
-
-            # are you kidding me. You can't use a / here.
             new_layer = m.addDataFromPath(f"{temp_filegeodb}\\{name}")
             temp_lyrx_file = TempFileName().generate_temporary_file_name(suffix=".lyrx")
             print(temp_lyrx_file)
@@ -204,25 +200,6 @@ class ContextServiceHelper(BaseObject, Process):
             new_layer.minThreshold = a_layer.minThreshold
             new_layer.showLabels = a_layer.showLabels
             new_layer.transparency = a_layer.transparency
-            # print(a_layer.dataSource.split('/')[-1])
-            # print(a_layer.connectionProperties)
-            # print(a_layer.dataSource)
-            # con_props = {'connection_info':{'database': temp_filegeodb,
-            #                                 'authentication_mode': '',
-            #                                 'dbclient': '',
-            #                                 'db_connection_properties': '',
-            #                                 'password': '',
-            #                                 'instance': '',
-            #                                 'server': '',
-            #                                 'user': '',
-            #                                 'version': ''},
-            #              'dataset': name,
-            #              'workspace_factory': 'File Geodatabase',
-            #              'feature_dataset': ''
-            #              }
-            # print(con_props)
-            # a_layer.updateConnectionProperties(a_layer.connectionProperties, con_props, validate=False)
-            # print(a_layer.connectionProperties)
             m.removeLayer(a_layer)
             working_aprx.save()
         fp = working_aprx.filePath

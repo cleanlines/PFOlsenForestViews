@@ -11,6 +11,7 @@ class ProcessFactory(object):
 
     @staticmethod
     def create_process(process_id):
+        print(f"process id:{process_id}")
         types = [t.__name__ for t in Process.__subclasses__()]
         if process_id.value not in types:
             raise Exception(f"{process_id} is not a valid Process")
