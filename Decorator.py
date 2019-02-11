@@ -23,6 +23,7 @@ class Decorator(object):
         @functools.wraps(func)
         def wrapper_timer(*args, **kwargs):
             print(f"starting {func}")
+            cls.logger.log(f"starting {str(func)}")
             start_time = time.perf_counter()  # 1
             value = func(*args, **kwargs)
             end_time = time.perf_counter()  # 2

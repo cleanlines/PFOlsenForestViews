@@ -24,8 +24,11 @@ class CreateSDFiles(BaseObject):
                     service_name = service_name % service_id
                 except Exception as e:
                     self.errorlog(str(e))
+                    self.log("This is an expected error.")
+                self.log(f"Service name:{service_name}")
                 sddraft_file = TempFileName.generate_temporary_file_name(suffix=".sddraft")
                 sdfile = TempFileName.generate_temporary_file_name(suffix=".sd")
+                self.log(f"Creating:{sddraft_file},{sdfile}")
                 m = aprx.listMaps(map_name)[0]
                 arcpy.SignInToPortal(self._config.portal, self._config.user, self._config.password)
                 sharing_draft = m.getWebLayerSharingDraft("HOSTING_SERVER", "FEATURE", service_name)
@@ -36,7 +39,6 @@ class CreateSDFiles(BaseObject):
                 sharing_draft.exportToSDDraft(sddraft_file)
                 arcpy.StageService_server(sddraft_file, sdfile)
                 sds[service_name] = sdfile
-                #sds.append()
         except Exception as e:
             self.errorlog(e)
         return sds

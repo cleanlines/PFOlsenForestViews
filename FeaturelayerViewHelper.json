@@ -1,4 +1,5 @@
 {
+  "basesearchtags":"python,automate,baseservice",
   "securityviewtags":"python,automate,secure_view",
   "securityviewdescription":"Feature Layer View for %s<br/>Updated on %s",
   "viewdefinitionfield":"bp_name"

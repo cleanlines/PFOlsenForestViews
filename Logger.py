@@ -112,10 +112,10 @@ class Logger(object, metaclass=Singleton):
         if level == "critical":
             logging.critical(message_string)
         elif level == "error" or level == "err":
-            logging.error("****************************************************")
+            logging.error("*"*50)
             logging.error(message_string)
             logging.exception("Traceback as follows:")
-            logging.error("****************************************************")
+            logging.error("*"*50)
         elif level == "warn":
             logging.warning(message_string)
         elif level == "info":

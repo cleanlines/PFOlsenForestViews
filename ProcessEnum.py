@@ -9,4 +9,5 @@ class ProcessEnum(Enum):
     SECURITY_GROUPS = 'SecurityGroupHelper'
     SHARING = 'SharingHelper'
     VIEWS = 'FeatureLayerViewHelper'
+    TEMPFILES = 'CleanUpHelper'
 

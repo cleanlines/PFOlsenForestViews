@@ -9,12 +9,15 @@ from Singleton import Singleton
 import datetime
 from CreateSDFiles import CreateSDFiles
 from FileGeodatabaseHelper import FileGeodatabaseHelper
+from FileHelper import FileHelper
+from Decorator import Decorator
 
 
 class ProcessBucket(object, metaclass=Singleton): pass
 
 
 class SecurityGroupHelper(BaseObject, Process):
+    @Decorator.timer
     def run_process(self):
         self.log("running SecurityGroupHelper process")
         cache = self.__process_security_groups()
@@ -44,10 +47,12 @@ class SecurityGroupHelper(BaseObject, Process):
             print(current_security_groups_portal)
             #finally delete any groups that are NOT being used - what do we do with content shared with it...?
             groups_to_delete = [item.id for item in current_security_groups_portal if item.title not in current_security_groups_db]
-            print(groups_to_delete)
+            self.log(f"Groups to delete - not in security table - {str(groups_to_delete)}")
             portal_helper.delete_groups(groups_to_delete)
+            self.log("Note shared items will still exist but will no longer be shared.")
             return current_security_groups_cache
 
+    @Decorator.timer
     def current_security_groups(self):
         current_security_groups = {self._config.securityfields[0]: []}
         with arcpy.da.SearchCursor(f"{self._config.sdeconnectionfile}/{self._config.securitytable}", self._config.securityfields) as cursor:
@@ -64,6 +69,7 @@ class SecurityGroupHelper(BaseObject, Process):
 
 
 class FeatureLayerViewHelper(BaseObject, Process):
+    @Decorator.timer
     def run_process(self):
         self.log("running FeatureLayerViewHelper process")
         bucket = ProcessBucket()
@@ -75,8 +81,8 @@ class FeatureLayerViewHelper(BaseObject, Process):
                     group_id, object_id = v
                     self.log(f"Processing {k}")
                     print(f"Processing {k}")
-                    # only do one keyword at a time or we could have issues (where ite,s have same keyowrds - does it matter?)
-                    items = portal_helper.get_shared_items_for_group(group_id, "View Service",self._config.securityviewtags)
+                    # only do one keyword at a time or we could have issues (where items have same keyowrds - does it matter?)
+                    items = portal_helper.get_shared_items_for_group(group_id, "View Service",self._config.securityviewtags.split(','))
                     # we need the object id (or customer id) to differentiate the views
                     # type is Feature Service
                     # typeKeywords <class 'list'>: ['ArcGIS Server', 'Data', 'Feature Access', 'Feature Service', 'providerSDS', 'Service', 'Hosted Service', 'View Service']
@@ -85,10 +91,13 @@ class FeatureLayerViewHelper(BaseObject, Process):
                     # so create it
                     if not items:
                         # get the core and context FS and create views
-                        base_items = portal_helper.get_base_services()
+                        base_items = portal_helper.get_base_services(self._config.basesearchtags)
                         print(base_items)
+                        # we were using the object ID but to keep it consistent with context use the name - 1st letters.
+                        an_id = "".join([s[0] for s in k.split()])
+
                         for a_base_item in base_items:
-                            item_properties = {'title':f'{a_base_item.title}_{object_id}_View',
+                            item_properties = {'title':f'{a_base_item.title}_{an_id}_View',
                                                'tags': self._config.securityviewtags,
                                                'description': self._config.securityviewdescription %(k, datetime.datetime.now().strftime("%d %B %Y %H:%M:%S")),
                                                'access':'private',
@@ -102,9 +111,8 @@ class FeatureLayerViewHelper(BaseObject, Process):
                                 portal_helper.share_item_with_groups_by_groupid(item, group_id)
                             except Exception as e:
                                 self.errorlog(e)
-                            # DEBUG return
                     else:
-                        print("View already exists and is shared")
+                        self.log(f"View(s) for {k} already exist and have been shared")
 
     class Factory:
 
@@ -114,10 +122,11 @@ class FeatureLayerViewHelper(BaseObject, Process):
 
 
 class CoreServiceHelper(BaseObject, Process):
+    @Decorator.timer
     def run_process(self):
         print(self._config.mapname)
         sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname)
-        ArcGISHelper().add_items_to_portal(sdfiles)
+        ArcGISHelper().add_items_to_portal(sdfiles, self._config.basesearchtags)
 
     class Factory:
 
@@ -127,28 +136,46 @@ class CoreServiceHelper(BaseObject, Process):
 
 
 class ContextServiceHelper(BaseObject, Process):
+    @Decorator.timer
     def run_process(self):
-        # we need to process the project - set definitions then publish
-        # so some looping etc
-        #we have to create a context for each security group
         arcpy.env.overwriteOutput = True
         groups = SecurityGroupHelper().current_security_groups()
+        bucket = ProcessBucket()
         fd = list(groups.keys())[0]
         for a_group in groups[fd]:
-            print(fd, a_group)
-            an_id = "".join([s[0] for s in a_group.split()])
-            proj = self.create_new_prjx(fd, a_group)
-            # we have done a selection on the data and created a prjx - now create the SD and share
-            #print(proj)
-            sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=proj, service_id=an_id)
-            print(sdfiles)
-            ####sdfiles = {"Context_Data_ONZFIL":"C:/Users/fsh/AppData/Local/Temp/_ags_201901311039240724276evcz0md.sd"}
-            ArcGISHelper().add_items_to_portal(sdfiles)
-            break # DEBUG
-        #CreateSDFiles().create_sd_files_from_map(self._config.coremapname,pro_prjx=new_prjx)
-        #ArcGISHelper().add_items_to_portal() # this function needs to be slightly modified - not generic enough
+            with ArcGISHelper() as portal_helper:
+                print(fd, a_group)
+                an_id = "".join([s[0] for s in a_group.split()])
+                sd_name = f"{self._config.mapname}_{an_id}"
+                print(sd_name)
+                item_ids = portal_helper.get_named_service_definition(sd_name, self._config.contextsearchtags)
+                print(item_ids)
+                self.log("Looking for the replace tag")
+                if item_ids and not [i for i in item_ids if self._config.replacetag in i.tags]:
+                    self.log(f"Item exists and no replace tag - skipping updating {a_group} context data")
+                    continue
+                self.log(f"Item doesn't exist or we found the replace tag - updating {a_group} context data")
+                self.log(f"Creating new ArcGIS Pro project for {a_group}")
+                proj = self.create_new_prjx(fd, a_group)
+                # we have done a selection on the data and created a prjx - now create the SD and share
+                sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=proj, service_id=an_id)
+                self.log(str(sdfiles))
+                published_items = portal_helper.add_items_to_portal(sdfiles, self._config.contextsearchtags)
+                # finally share
+                if hasattr(bucket, "_group_cache"):
+                    try:
+                        [portal_helper.share_item_with_groups_by_groupid(pi, bucket._group_cache[a_group][0]) for pi in published_items]
+                    except Exception as e:
+                        self.errorlog(str(e))
+                #refresh tags
+                for i in item_ids:
+                    if self._config.replacetag in i.tags:
+                        self.log(f"Old tags: {i.tags}")
+                        i.tags.remove(self._config.replacetag)
+                        self.log(f"New tags: {i.tags}")
+                        portal_helper.update_item(i, {"tags": ",".join(i.tags)})
 
-        #### NOTE!!! Removed the secured BP zone from the base project
+    @Decorator.timer
     def create_new_prjx(self, a_field, a_group):
         aprx = arcpy.mp.ArcGISProject(self._config.baseprjx)
         tempprjx = TempFileName.generate_temporary_file_name(suffix=".aprx")
@@ -178,8 +205,7 @@ class ContextServiceHelper(BaseObject, Process):
             print(a_layer.name)
             if a_layer.isBasemapLayer or not a_layer.isFeatureLayer:
                 continue
-            # if 'Transport' not in a_layer.name:
-            #     continue
+
             result = arcpy.GetCount_management(a_layer)
             print("before selection ", a_layer.name, f"count:{result}")
             arcpy.SelectLayerByLocation_management(a_layer, 'INTERSECT', temp_lyr, 30)
@@ -193,7 +219,7 @@ class ContextServiceHelper(BaseObject, Process):
             temp_lyrx_file = TempFileName().generate_temporary_file_name(suffix=".lyrx")
             print(temp_lyrx_file)
             a_layer.saveACopy(temp_lyrx_file)
-            arcpy.ApplySymbologyFromLayer_management(new_layer, temp_lyrx_file)#, update_symbology="MAINTAIN")
+            arcpy.ApplySymbologyFromLayer_management(new_layer, temp_lyrx_file)
             # reset all the usual stuff
             new_layer.visible = a_layer.visible
             new_layer.maxThreshold = a_layer.maxThreshold
@@ -205,14 +231,26 @@ class ContextServiceHelper(BaseObject, Process):
         fp = working_aprx.filePath
         del working_aprx
         return fp
-        #
-        # Note you have to change the publish process as this reads local config and won't name the service the right thing - you will have to update to make sure the conext service format is the same as the core views - context_data_object_id_service or something.
-        #sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=working_aprx.filePath)
-        #ArcGISHelper().add_items_to_portal(sdfiles)
-        #arcpy.Delete_management(temp_lyr)
 
     class Factory:
 
         @staticmethod
         def create():
             return ContextServiceHelper()
+
+
+class CleanUpHelper(BaseObject, Process):
+    @Decorator.timer
+    def run_process(self):
+        if self._config.cleanup:
+            try:
+                FileHelper().remove_all_temp_files(prefix="_ags")
+                FileHelper().remove_all_temp_files(file_ext="sde")
+            except Exception as e:
+                self.errorlog(str(e))
+
+    class Factory:
+
+        @staticmethod
+        def create():
+            return CleanUpHelper()

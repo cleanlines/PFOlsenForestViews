@@ -7,13 +7,13 @@
   "core.sd": {
     "servicename": "Core_Data",
     "summary": "This is core forest data",
-    "tags": "PFOlsen,core,forest,customer",
-    "description": "I like to automate stuff."
+    "tags": "core,python,automate,baseservice",
+    "description": "Service Definition file for %s"
   },
   "context.sd": {
-    "servicename": "Context_Data",
+    "servicename": "Context_Data_s%",
     "summary": "This is context forest data",
-    "tags": "PFOlsen,context,forest",
-    "description": "I like to automate stuff yeah."
+    "tags": "contextservice,python,automate",
+    "description": "Service Definition file for %s"
   }
 }
