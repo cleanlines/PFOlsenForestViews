@@ -1,10 +1,7 @@
-
 from BaseObject import BaseObject
 from arcgis.gis import GIS
-from arcgis.features import FeatureLayer
 from arcgis.features import FeatureLayerCollection
 from Decorator import Decorator
-from CreateSDFiles import CreateSDFiles
 import datetime
 
 
@@ -14,7 +11,7 @@ class ArcGISHelper(BaseObject):
         super(ArcGISHelper, self).__init__()
         self._gis = GIS(self._config.portal, self._config.user, self._config.password)
         # override for this DEBUG session
-        # TODO: remove debug print
+        # DEBUG: override print
         # self.log = lambda x: print(x)
         # self.log("ArcGISHelper initialised")
 
@@ -22,13 +19,15 @@ class ArcGISHelper(BaseObject):
     def get_base_services(self, tags):
         # NOTE: tags are important here otherwise you may get items back that you don't expect.
         item_id_list = self._gis.content.search(query=f'title:"_Data" AND tags:"{tags}"', item_type="Feature Service")
-        print(item_id_list)
+        self.log(f'title:"_Data" AND tags:"{tags}"')
+        self.log(f"Found base service items: {str(item_id_list)}")
         return item_id_list
 
     def get_named_service_definition(self, name, tags):
         item_id_list = self._gis.content.search(query=f'title:"{name}" AND tags:"{tags}"',
                                                 item_type="Service Definition")
-        print(item_id_list)
+        self.log(f'title:"{name}" AND tags:"{tags}"')
+        self.log(f"Found named services definitions: {str(item_id_list)}")
         return item_id_list
 
     @Decorator.timer
@@ -58,13 +57,15 @@ class ArcGISHelper(BaseObject):
             published_item = None
             try:
                 self.log(f"Publishing: {str(item)}")
-                published_item = item.publish(overwrite=True) # issue - overwrite # check existence
+                published_item = item.publish(overwrite=True)
                 published_item.update(item_properties={"description": self._config.featurelayerdescription % (a_map, datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"))})
                 self.log("Feature service updated")
                 self.log(published_item)
             except RuntimeError as e:
+                #the publish may throw an error on overwrite
                 self.errorlog(e)
-                published_item = item.publish()  # issue - overwrite # check existence
+                self.log("This is an expected error.")
+                published_item = item.publish()
                 published_item.update(item_properties={"description": self._config.featurelayerdescription % (a_map, datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"))})
                 self.log("Feature service created")
                 self.log(published_item)
@@ -93,15 +94,14 @@ class ArcGISHelper(BaseObject):
 
     @Decorator.timer
     def delete_groups(self, group_ids):
-        for id in group_ids:
+        for an_id in group_ids:
             try:
-                self._gis.groups.get(id).delete()
+                self._gis.groups.get(an_id).delete()
             except Exception as e:
                 self.errorlog(e)
 
     @Decorator.timer
     def get_shared_items_for_group(self, group_id, type_keyword=None, tags=None):
-
         group = self._gis.groups.get(group_id)
         if group:
             views = group.content()
@@ -119,11 +119,6 @@ class ArcGISHelper(BaseObject):
         flc = FeatureLayerCollection.fromitem(item)
         try:
             view_item = flc.manager.create_view(name=item_properties['title'], allow_schema_changes=False)
-            print(view_item)
-            # https://febsvr.australiaeast.cloudapp.azure.com/server/rest/admin/services/Hosted/Core_Data_View/FeatureServer/0/updateDefinition
-            #{"viewDefinitionQuery":"bp_name = 'OTPP New Zealand Forest Investments Limited'"}
-
-            # data = view_item.get_data()
             view_item.update(item_properties={
                 'description': item_properties['description'],
                 'tags': item_properties['tags'],
@@ -151,7 +146,7 @@ class ArcGISHelper(BaseObject):
 
     @Decorator.timer
     def share_item_with_groups_by_groupid(self,item, group_ids):
-        group_ids_not_shared = item.share(everyone=False,org=False,groups=group_ids)
+        group_ids_not_shared = item.share(everyone=False, org=False, groups=group_ids)
         groups_to_share_with = group_ids.split(",")
         if 'notSharedWith' in group_ids_not_shared:
             return set(group_ids).issubset(group_ids_not_shared['notSharedWith'])
@@ -161,8 +156,3 @@ class ArcGISHelper(BaseObject):
 
     def __exit__(self, exc_type, exc_value, traceback):
         pass
-
-
-
-
-

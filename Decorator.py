@@ -1,7 +1,7 @@
-
 import functools
 import time
 from BaseLogger import BaseLogger
+
 
 class Decorator(object):
 

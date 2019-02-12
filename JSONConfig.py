@@ -1,10 +1,8 @@
-# from BaseObject import BaseObject
 import inspect
 import os
 import json
 from BaseLogger import BaseLogger
 
-# expects all config files to be stored in same directory
 
 class JSONConfig(BaseLogger):
 
@@ -24,7 +22,6 @@ class JSONConfig(BaseLogger):
                     self.__mixin_config(self._file)
                 else:
                     self._logger.do_message(f"Configuration file not found - {class_name}", "info")
-                    #raise Exception("Configuration file not found - %s" % class_name)
 
         except Exception as err:
             # no config file found - may or may not be an error depending on the module.

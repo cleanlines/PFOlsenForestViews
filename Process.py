@@ -1,8 +1,6 @@
 from __future__ import generators
-
 from TempFileName import TempFileName
 from BaseObject import *
-from Decorator import Decorator
 import arcpy
 from ArcGISHelper import ArcGISHelper
 from Singleton import Singleton
@@ -26,17 +24,15 @@ class SecurityGroupHelper(BaseObject, Process):
 
     @Decorator.timer
     def __process_security_groups(self):
-        # should really push this into a cursor access class - put a yield on it - see csvhelper
-        # would be more elegant
-        print(self._config.sdeconnectionfile)
-        print(self._config.securitytable)
+        self.log(f"SDE connection file: {self._config.sdeconnectionfile}")
+        self.log(f"Security table: {str(self._config.securitytable)}")
         current_security_groups_db = []
         current_security_groups_cache = {}
 
         with ArcGISHelper() as portal_helper:
             with arcpy.da.SearchCursor(f"{self._config.sdeconnectionfile}/{self._config.securitytable}", self._config.securityfields) as cursor:
                 for row in cursor:
-                    print(row[0])
+                    self.log(f"Processing: {str(row[0])}")
                     create_dict = {"title": row[0],
                                    "tags": self._config.securitytags,
                                    "access": "private", "is_invitation_only": True, "is_view_only": True}
@@ -44,8 +40,7 @@ class SecurityGroupHelper(BaseObject, Process):
                     current_security_groups_db.append(row[0])
                     current_security_groups_cache[row[0]] = (group_item.id, row[1])
             current_security_groups_portal = portal_helper.get_groups_from_tags(self._config.securitytags)
-            print(current_security_groups_portal)
-            #finally delete any groups that are NOT being used - what do we do with content shared with it...?
+            #finally delete any groups that are NOT being used - content will not be shared afterwards
             groups_to_delete = [item.id for item in current_security_groups_portal if item.title not in current_security_groups_db]
             self.log(f"Groups to delete - not in security table - {str(groups_to_delete)}")
             portal_helper.delete_groups(groups_to_delete)
@@ -57,7 +52,6 @@ class SecurityGroupHelper(BaseObject, Process):
         current_security_groups = {self._config.securityfields[0]: []}
         with arcpy.da.SearchCursor(f"{self._config.sdeconnectionfile}/{self._config.securitytable}", self._config.securityfields) as cursor:
             for row in cursor:
-                print(row[0])
                 current_security_groups[self._config.securityfields[0]].append(row[0])
         return current_security_groups
 
@@ -73,26 +67,21 @@ class FeatureLayerViewHelper(BaseObject, Process):
     def run_process(self):
         self.log("running FeatureLayerViewHelper process")
         bucket = ProcessBucket()
-        if hasattr(bucket,"_group_cache"):
-            print(bucket._group_cache)
+        if hasattr(bucket, "_group_cache"):
+            self.log(f"Got bucket cache: {str(bucket._group_cache)}")
             # ok we now need to build views for each customer - check if the group has any views associated with it
             with ArcGISHelper() as portal_helper:
                 for k, v in bucket._group_cache.items():
                     group_id, object_id = v
                     self.log(f"Processing {k}")
-                    print(f"Processing {k}")
-                    # only do one keyword at a time or we could have issues (where items have same keyowrds - does it matter?)
                     items = portal_helper.get_shared_items_for_group(group_id, "View Service",self._config.securityviewtags.split(','))
-                    # we need the object id (or customer id) to differentiate the views
-                    # type is Feature Service
-                    # typeKeywords <class 'list'>: ['ArcGIS Server', 'Data', 'Feature Access', 'Feature Service', 'providerSDS', 'Service', 'Hosted Service', 'View Service']
-                    print(items)
+                    self.log(f"Found these items:{str(items)}")
                     # if the items are empty then there is no view or it hasn't been shared
                     # so create it
                     if not items:
                         # get the core and context FS and create views
                         base_items = portal_helper.get_base_services(self._config.basesearchtags)
-                        print(base_items)
+                        self.log(f"Found these base items {str(base_items)}")
                         # we were using the object ID but to keep it consistent with context use the name - 1st letters.
                         an_id = "".join([s[0] for s in k.split()])
 
@@ -124,7 +113,6 @@ class FeatureLayerViewHelper(BaseObject, Process):
 class CoreServiceHelper(BaseObject, Process):
     @Decorator.timer
     def run_process(self):
-        print(self._config.mapname)
         sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname)
         ArcGISHelper().add_items_to_portal(sdfiles, self._config.basesearchtags)
 
@@ -144,12 +132,12 @@ class ContextServiceHelper(BaseObject, Process):
         fd = list(groups.keys())[0]
         for a_group in groups[fd]:
             with ArcGISHelper() as portal_helper:
-                print(fd, a_group)
+                self.log(f"Context processing {fd}, {a_group}")
                 an_id = "".join([s[0] for s in a_group.split()])
                 sd_name = f"{self._config.mapname}_{an_id}"
-                print(sd_name)
+                self.log(f"defintion name: {sd_name}")
                 item_ids = portal_helper.get_named_service_definition(sd_name, self._config.contextsearchtags)
-                print(item_ids)
+                self.log(f"Named service definitions: {str(item_ids)}")
                 self.log("Looking for the replace tag")
                 if item_ids and not [i for i in item_ids if self._config.replacetag in i.tags]:
                     self.log(f"Item exists and no replace tag - skipping updating {a_group} context data")
@@ -180,44 +168,42 @@ class ContextServiceHelper(BaseObject, Process):
         aprx = arcpy.mp.ArcGISProject(self._config.baseprjx)
         tempprjx = TempFileName.generate_temporary_file_name(suffix=".aprx")
         temp_filegeodb = FileGeodatabaseHelper().new_file_geodatabase()
-        print(tempprjx)
-        print(temp_filegeodb)
+        self.log(tempprjx)
+        self.log(temp_filegeodb)
         aprx.saveACopy(tempprjx)
-        #del aprx
+        del aprx
         working_aprx = arcpy.mp.ArcGISProject(tempprjx)
         m = working_aprx.listMaps(self._config.mapname)[0]
         lyr_file = arcpy.mp.LayerFile(self._config.layerfile)
 
         select_lyr = lyr_file.listLayers("*")[0]
         temp_lyr = "temp_lyr"
+        self.log(f"making a temp feature layer with {a_field} = '{a_group}'")
         arcpy.MakeFeatureLayer_management(select_lyr, temp_lyr, f"{a_field} = '{a_group}'")
-        print("temp layer,",f"{a_field} = '{a_group}'")
-        with arcpy.da.SearchCursor(temp_lyr, ['*']) as cursor:
-            for row in cursor:
-                print(row)
+        # with arcpy.da.SearchCursor(temp_lyr, ['*']) as cursor:
+        #     for row in cursor:
+        #         print(row)
 
         # we know need to do a spatial join between the security polygon and all the other layers
         # we have to reverse the order of layers processed for the addDataFromPath
         layer_list = [l.name for l in m.listLayers("*")]
-        #for a_layer in m.listLayers("*"):
         for layer_name in reversed(layer_list):
             a_layer = m.listLayers(layer_name)[0]
-            print(a_layer.name)
+            self.log(f"Processing {a_layer.name}")
             if a_layer.isBasemapLayer or not a_layer.isFeatureLayer:
                 continue
 
             result = arcpy.GetCount_management(a_layer)
-            print("before selection ", a_layer.name, f"count:{result}")
+            self.log(f"before selection {a_layer.name} count:{result}")
             arcpy.SelectLayerByLocation_management(a_layer, 'INTERSECT', temp_lyr, 30)
             result = arcpy.GetCount_management(a_layer)
-            print("after selection ", a_layer.name, f"count:{result}")
-            #copy to new filegeodb and reset datasource
+            self.log(f"after selection {a_layer.name} count:{result}")
             name = a_layer.dataSource.split('\\')[-1].split('.')[-1]
-            print(f"Name:{name}")
+            self.log(f"New layer name:{name}")
             arcpy.FeatureClassToFeatureClass_conversion(a_layer, temp_filegeodb, name)
             new_layer = m.addDataFromPath(f"{temp_filegeodb}\\{name}")
             temp_lyrx_file = TempFileName().generate_temporary_file_name(suffix=".lyrx")
-            print(temp_lyrx_file)
+            self.log(f"Temp lyrx file: {temp_lyrx_file}")
             a_layer.saveACopy(temp_lyrx_file)
             arcpy.ApplySymbologyFromLayer_management(new_layer, temp_lyrx_file)
             # reset all the usual stuff
