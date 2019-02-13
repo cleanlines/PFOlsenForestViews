@@ -1,8 +1,10 @@
 from ProcessFactory import ProcessFactory
 from ProcessEnum import ProcessEnum
 from BaseObject import *
+from Decorator import Decorator
 
 
+@Decorator.timer
 class UpdateViewWrapper(BaseObject):
     def run_processes(self):
         try:
@@ -23,3 +25,4 @@ if __name__ =='__main__':
 
 
 #ISSUE: Contours are not part of the script.
+# add a HFL that logs error or success! ;-) simple table - time ran, message, how long ran for.

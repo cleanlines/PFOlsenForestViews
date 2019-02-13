@@ -64,7 +64,7 @@ class ArcGISHelper(BaseObject):
             except RuntimeError as e:
                 #the publish may throw an error on overwrite
                 self.errorlog(e)
-                self.log("This is an expected error.")
+                self.log("This is an expected error. ;-P")
                 published_item = item.publish()
                 published_item.update(item_properties={"description": self._config.featurelayerdescription % (a_map, datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"))})
                 self.log("Feature service created")

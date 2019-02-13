@@ -24,7 +24,7 @@ class CreateSDFiles(BaseObject):
                     service_name = service_name % service_id
                 except Exception as e:
                     self.errorlog(str(e))
-                    self.log("This is an expected error.")
+                    self.log("This is an expected error. ;-)")
                 self.log(f"Service name:{service_name}")
                 sddraft_file = TempFileName.generate_temporary_file_name(suffix=".sddraft")
                 sdfile = TempFileName.generate_temporary_file_name(suffix=".sd")
