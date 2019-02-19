@@ -1,6 +1,6 @@
 {
   "mapname":"Context",
-  "baseprjx": "C:/ZZCloud/Dropbox/Work/PFOlsen/ArcGISPro/PFOlsen/PFOlsen.aprx",
+  "baseprjx": "C:/ZZCloud/Dropbox/Work/PFOlsen/Scripting/Pro/PFOlsen.aprx",
   "layerfile":"C:/ZZCloud/Dropbox/Work/PFOlsen/Scripting/layers/PFOSecuredBPZone.lyrx",
   "contextsearchtags": "contextservice,python,automate",
   "replacetag":"replace",

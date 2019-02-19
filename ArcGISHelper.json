@@ -1,8 +1,7 @@
 {
-
-  "itemproperties":{
-    "title":"%s_Data"
+  "itemproperties": {
+    "title": "%s_Data"
   },
-  "sdfiledescription":"Service Definition file for %s<br/>Updated on %s",
-  "featurelayerdescription":"Feature Layer for %s<br/>Updated on %s"
+  "sdfiledescription": "Service Definition file for %s<br/>Updated on %s",
+  "featurelayerdescription": "Feature Layer for %s<br/>Updated on %s"
 }
