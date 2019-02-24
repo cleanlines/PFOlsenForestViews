@@ -23,7 +23,5 @@ if __name__ =='__main__':
     UpdateViewWrapper().run_processes()
 
 
-
-
 #ISSUE: Contours are not part of the script.
 # add a HFL that logs error or success! ;-) simple table - time ran, message, how long ran for.

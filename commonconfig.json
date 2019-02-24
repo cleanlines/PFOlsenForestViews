@@ -1,5 +1,5 @@
 {
-  "portal":"https://febsvr.australiaeast.cloudapp.azure.com/portal",
-  "user":"agsadmin",
-  "password":"AgsAdmin"
+  "portal":"<portal location>",
+  "user":"<portal IAA>",
+  "password":"<portal password>"
 }
