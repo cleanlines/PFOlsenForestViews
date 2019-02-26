@@ -1,6 +1,7 @@
 from enum import Enum
 from enum import unique
 
+
 @unique
 class ProcessEnum(Enum):
     CORE_SERVICE = 'CoreServiceHelper'

@@ -6,7 +6,7 @@ from BaseLogger import BaseLogger
 
 class JSONConfig(BaseLogger):
 
-    def __init__(self, class_name = None):
+    def __init__(self, class_name=None):
         super(JSONConfig, self).__init__()
 
         try:
@@ -23,7 +23,7 @@ class JSONConfig(BaseLogger):
                 else:
                     self._logger.do_message(f"Configuration file not found - {class_name}", "info")
 
-        except Exception as err:
+        except Exception:
             # no config file found - may or may not be an error depending on the module.
             raise RuntimeError("Cannot load module configuration")
         self._logger.do_message("JSONConfig initialised")
@@ -35,7 +35,7 @@ class JSONConfig(BaseLogger):
             json_data.close()
             [setattr(self, k, v) for k, v in config.items()]
 
-        except Exception as err:
+        except Exception:
             self._logger.do_message("Cannot load application configuration", "err")
             raise RuntimeError("Cannot load application configuration")
 

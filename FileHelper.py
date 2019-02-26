@@ -14,23 +14,23 @@ class FileHelper(BaseObject):
         for root, dirnames, filenames in os.walk(TempFileName.get_temp_directory()):
             for filename in fnmatch.filter(filenames, f'{prefix}*.{file_ext}'):
                 try:
-                    os.remove(os.path.join(root,filename))
+                    os.remove(os.path.join(root, filename))
                 except WindowsError as we:
                     self.log("Failed to delete: %s" % filename)
-                    self.log(we.strerror)
+                    self.log(str(we.strerror))
                 except Exception as e:
                     self.log("Failed to delete: %s" % filename)
-                    self.errorlog(e.message)
+                    self.errorlog(str(e))
 
     def delete_file(self, filename):
         try:
             os.remove(filename)
         except WindowsError as we:
             self.log("Failed to delete: %s" % filename)
-            self.log(we.strerror)
+            self.log(str(we.strerror))
         except Exception as e:
             self.log("Failed to delete: %s" % filename)
-            self.errorlog(e.message)
+            self.errorlog(str(e))
 
 
 # if __name__ == "__main__":

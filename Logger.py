@@ -96,7 +96,7 @@ class Logger(object, metaclass=Singleton):
                 self._stream_handler.flush()
                 return self._stream.getvalue()
             except Exception as err:
-                return err.message
+                return str(err)
         return ""
 
     # noinspection PyMethodMayBeStatic

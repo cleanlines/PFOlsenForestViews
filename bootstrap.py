@@ -13,7 +13,7 @@ class UpdateViewWrapper(BaseObject):
             self.errorlog(str(e))
 
 
-if __name__ =='__main__':
+if __name__ == '__main__':
     UpdateViewWrapper().run_processes()
 
 

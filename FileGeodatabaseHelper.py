@@ -7,8 +7,8 @@ import shelve
 class FileGeodatabaseHelper(BaseObject):
 
     def __init__(self):
-        super(FileGeodatabaseHelper,self).__init__()
-        # self._clean_up = False
+        super(FileGeodatabaseHelper, self).__init__()
+        self._clean_up = False
         self._current_file_geodb = None
         self.log("FileGeodatabaseHelper initialised")
 
@@ -26,7 +26,7 @@ class FileGeodatabaseHelper(BaseObject):
     def new_file_geodatabase(self):
         self._delete_current_file_geodb()
         path, file_geodb_name = TempFileName.generate_temporary_file_name(".gdb", split=True)
-        self._current_file_geodb = arcpy.CreateFileGDB_management(path,file_geodb_name)[0]
+        self._current_file_geodb = arcpy.CreateFileGDB_management(path, file_geodb_name)[0]
         self.log("File geodb created at: %s" % self._current_file_geodb)
         return self._current_file_geodb
 
@@ -37,13 +37,13 @@ class FileGeodatabaseHelper(BaseObject):
                 self.log("Cleaning up file geodb %s" % loc)
                 arcpy.Delete_management(loc)
             except Exception as e:
-                self.errorlog(e.message)
+                self.errorlog(str(e))
         try:
             self._current_file_geodb = arcpy.CreateFileGDB_management(TempFileName.get_temp_directory(), name)[0]
             self.log("File geodb created at: %s" % self._current_file_geodb)
             return self._current_file_geodb
         except Exception as e:
-            self.errorlog(e.message)
+            self.errorlog(str(e))
             return self._current_file_geodb
 
     def cache_database_name(self):
@@ -57,7 +57,7 @@ class FileGeodatabaseHelper(BaseObject):
                 self.log("Cleaning up file geodb %s" % str(self._current_file_geodb))
                 arcpy.Delete_management(self._current_file_geodb)
             except Exception as e:
-                self.errorlog(e.message)
+                self.errorlog(str(e))
 
     def __enter__(self):
         return self

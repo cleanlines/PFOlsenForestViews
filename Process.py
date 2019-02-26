@@ -20,7 +20,7 @@ class SecurityGroupHelper(BaseObject, Process):
         self.log("running SecurityGroupHelper process")
         cache = self.__process_security_groups()
         bucket = ProcessBucket()
-        bucket._group_cache = cache
+        bucket.group_cache = cache
 
     @Decorator.timer
     def __process_security_groups(self):
@@ -67,14 +67,14 @@ class FeatureLayerViewHelper(BaseObject, Process):
     def run_process(self):
         self.log("running FeatureLayerViewHelper process")
         bucket = ProcessBucket()
-        if hasattr(bucket, "_group_cache"):
-            self.log(f"Got bucket cache: {str(bucket._group_cache)}")
+        if hasattr(bucket, "group_cache"):
+            self.log(f"Got bucket cache: {str(bucket.group_cache)}")
             # ok we now need to build views for each customer - check if the group has any views associated with it
             with ArcGISHelper() as portal_helper:
-                for k, v in bucket._group_cache.items():
+                for k, v in bucket.group_cache.items():
                     group_id, object_id = v
                     self.log(f"Processing {k}")
-                    items = portal_helper.get_shared_items_for_group(group_id, "View Service",self._config.securityviewtags.split(','))
+                    items = portal_helper.get_shared_items_for_group(group_id, "View Service", self._config.securityviewtags.split(','))
                     self.log(f"Found these items:{str(items)}")
                     # if the items are empty then there is no view or it hasn't been shared
                     # so create it
@@ -86,12 +86,12 @@ class FeatureLayerViewHelper(BaseObject, Process):
                         an_id = "".join([s[0] for s in k.split()])
 
                         for a_base_item in base_items:
-                            item_properties = {'title':f'{a_base_item.title}_{an_id}_View',
+                            item_properties = {'title': f'{a_base_item.title}_{an_id}_View',
                                                'tags': self._config.securityviewtags,
-                                               'description': self._config.securityviewdescription %(k, datetime.datetime.now().strftime("%d %B %Y %H:%M:%S")),
-                                               'access':'private',
+                                               'description': self._config.securityviewdescription % (k, datetime.datetime.now().strftime("%d %B %Y %H:%M:%S")),
+                                               'access': 'private',
                                                'commentsEnabled': False,
-                                                'securityfield':self._config.viewdefinitionfield,
+                                                'securityfield': self._config.viewdefinitionfield,
                                                'viewDefinitionQuery': f"{self._config.viewdefinitionfield} = '{k}'"}
 
                             try:
@@ -150,9 +150,9 @@ class ContextServiceHelper(BaseObject, Process):
                 self.log(str(sdfiles))
                 published_items = portal_helper.add_items_to_portal(sdfiles, self._config.contextsearchtags)
                 # finally share
-                if hasattr(bucket, "_group_cache"):
+                if hasattr(bucket, "group_cache"):
                     try:
-                        [portal_helper.share_item_with_groups_by_groupid(pi, bucket._group_cache[a_group][0]) for pi in published_items]
+                        [portal_helper.share_item_with_groups_by_groupid(pi, bucket.group_cache[a_group][0]) for pi in published_items]
                     except Exception as e:
                         self.errorlog(str(e))
                 #refresh tags

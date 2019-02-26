@@ -127,7 +127,7 @@ class ArcGISHelper(BaseObject):
             })
 
             for a_layer in view_item.layers:
-                if [fd for fd  in a_layer.manager.properties.fields if fd.name.upper() == item_properties['securityfield'].upper()]:
+                if [fd for fd in a_layer.manager.properties.fields if fd.name.upper() == item_properties['securityfield'].upper()]:
                     self.log(item_properties['viewDefinitionQuery'])
                     a_layer.manager.update_definition({"viewDefinitionQuery": item_properties['viewDefinitionQuery']})
                 else:
@@ -145,9 +145,8 @@ class ArcGISHelper(BaseObject):
         return an_item.update(item_properties=props_dict)
 
     @Decorator.timer
-    def share_item_with_groups_by_groupid(self,item, group_ids):
+    def share_item_with_groups_by_groupid(self, item, group_ids):
         group_ids_not_shared = item.share(everyone=False, org=False, groups=group_ids)
-        groups_to_share_with = group_ids.split(",")
         if 'notSharedWith' in group_ids_not_shared:
             return set(group_ids).issubset(group_ids_not_shared['notSharedWith'])
 
