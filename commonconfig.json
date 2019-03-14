@@ -1,5 +1,6 @@
 {
-  "portal":"<portal location>",
-  "user":"<portal IAA>",
-  "password":"<portal password>"
+  "securityviewtags":"python,automate,secure_view",
+  "portal":"https://arcgis.pfolsen.com/portal",
+  "user":"pyauto",
+  "password":"xxxXXXxxx"
 }

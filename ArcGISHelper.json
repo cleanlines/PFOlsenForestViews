@@ -1,6 +1,6 @@
 {
   "itemproperties": {
-    "title": "%s_Data"
+    "title": "%s_Datasets"
   },
   "sdfiledescription": "Service Definition file for %s<br/>Updated on %s",
   "featurelayerdescription": "Feature Layer for %s<br/>Updated on %s"

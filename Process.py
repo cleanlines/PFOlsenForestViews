@@ -36,9 +36,12 @@ class SecurityGroupHelper(BaseObject, Process):
                     create_dict = {"title": row[0],
                                    "tags": self._config.securitytags,
                                    "access": "private", "is_invitation_only": True, "is_view_only": True}
-                    group_item = portal_helper.group_exists(row[0], self._config.securitytags, True, create_dict)
-                    current_security_groups_db.append(row[0])
-                    current_security_groups_cache[row[0]] = (group_item.id, row[1])
+                    if row[0]:
+                        group_item = portal_helper.group_exists(row[0], self._config.securitytags, True, create_dict)
+                        current_security_groups_db.append(row[0])
+                        current_security_groups_cache[row[0]] = (group_item.id, row[1])
+                    else:
+                        self.log("No customer name for polygon skipping.")
             current_security_groups_portal = portal_helper.get_groups_from_tags(self._config.securitytags)
             #finally delete any groups that are NOT being used - content will not be shared afterwards
             groups_to_delete = [item.id for item in current_security_groups_portal if item.title not in current_security_groups_db]
@@ -79,11 +82,11 @@ class FeatureLayerViewHelper(BaseObject, Process):
                     # if the items are empty then there is no view or it hasn't been shared
                     # so create it
                     if not items:
-                        # get the core and context FS and create views
-                        base_items = portal_helper.get_base_services(self._config.basesearchtags)
+                        # get the core and context FS and create views note we should do this first
+                        base_items = portal_helper.get_base_services(self._config.basesearchtags, title=self._config.title)
                         self.log(f"Found these base items {str(base_items)}")
                         # we were using the object ID but to keep it consistent with context use the name - 1st letters.
-                        an_id = "".join([s[0] for s in k.split()])
+                        an_id = "".join([s[0] for s in k.split() if s.isalnum()])
 
                         for a_base_item in base_items:
                             item_properties = {'title': f'{a_base_item.title}_{an_id}_View',
@@ -130,10 +133,13 @@ class ContextServiceHelper(BaseObject, Process):
         groups = SecurityGroupHelper().current_security_groups()
         bucket = ProcessBucket()
         fd = list(groups.keys())[0]
+        groups_to_published_items = {}
+
         for a_group in groups[fd]:
             with ArcGISHelper() as portal_helper:
+                published_items = {}
                 self.log(f"Context processing {fd}, {a_group}")
-                an_id = "".join([s[0] for s in a_group.split()])
+                an_id = "".join([s[0] for s in a_group.split() if s.isalnum()])
                 sd_name = f"{self._config.mapname}_{an_id}"
                 self.log(f"defintion name: {sd_name}")
                 item_ids = portal_helper.get_named_service_definition(sd_name, self._config.contextsearchtags)
@@ -148,20 +154,25 @@ class ContextServiceHelper(BaseObject, Process):
                 # we have done a selection on the data and created a prjx - now create the SD and share
                 sdfiles = CreateSDFiles().create_sd_files_from_map(self._config.mapname, pro_prjx=proj, service_id=an_id)
                 self.log(str(sdfiles))
-                published_items = portal_helper.add_items_to_portal(sdfiles, self._config.contextsearchtags)
-                # finally share
-                if hasattr(bucket, "group_cache"):
-                    try:
-                        [portal_helper.share_item_with_groups_by_groupid(pi, bucket.group_cache[a_group][0]) for pi in published_items]
-                    except Exception as e:
-                        self.errorlog(str(e))
-                #refresh tags
+                published_items = portal_helper.add_context_items_to_portal(sdfiles, self._config.contextsearchtags, published_items)
+                groups_to_published_items[a_group] = published_items
+                # refresh tags
                 for i in item_ids:
                     if self._config.replacetag in i.tags:
                         self.log(f"Old tags: {i.tags}")
                         i.tags.remove(self._config.replacetag)
                         self.log(f"New tags: {i.tags}")
                         portal_helper.update_item(i, {"tags": ",".join(i.tags)})
+        for a_grp, published_items in groups_to_published_items.items():
+            for some_map, some_items in published_items.items():
+                with ArcGISHelper() as portal_helper:
+                    published_layers = portal_helper.publish_context_items_to_portal(some_map,some_items)
+                    # finally share
+                    if hasattr(bucket, "group_cache"):
+                        try:
+                            [portal_helper.share_item_with_groups_by_groupid(pi, bucket.group_cache[a_grp][0]) for pi in published_layers]
+                        except Exception as e:
+                            self.errorlog(str(e))
 
     @Decorator.timer
     def create_new_prjx(self, a_field, a_group):
@@ -172,10 +183,12 @@ class ContextServiceHelper(BaseObject, Process):
         self.log(temp_filegeodb)
         aprx.saveACopy(tempprjx)
         del aprx
+        self.log(f"deleted handle on {self._config.baseprjx}")
         working_aprx = arcpy.mp.ArcGISProject(tempprjx)
+        self.log(f"Got {working_aprx}")
         m = working_aprx.listMaps(self._config.mapname)[0]
         lyr_file = arcpy.mp.LayerFile(self._config.layerfile)
-
+        self.log(f"Got {lyr_file}")
         select_lyr = lyr_file.listLayers("*")[0]
         temp_lyr = "temp_lyr"
         self.log(f"making a temp feature layer with {a_field} = '{a_group}'")
@@ -230,7 +243,10 @@ class CleanUpHelper(BaseObject, Process):
     def run_process(self):
         if self._config.cleanup:
             try:
-                FileHelper().remove_all_temp_files(prefix="_ags")
+                if self._config.cleanuplogs:
+                    FileHelper().remove_all_temp_files(prefix="_ags")
+                else:
+                    FileHelper().remove_all_temp_files(prefix="_ags", exclude=".log")
                 FileHelper().remove_all_temp_files(file_ext="sde")
             except Exception as e:
                 self.errorlog(str(e))

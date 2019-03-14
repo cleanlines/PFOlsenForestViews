@@ -5,13 +5,13 @@
     "Context"
   ],
   "core": {
-    "servicename": "Core",
+    "servicename": "Core_BP",
     "summary": "These are core forest datasets",
     "tags": "core,python,automate,baseservice",
     "description": "Service Definition file for %s"
   },
   "context": {
-    "servicename": "Context_%s",
+    "servicename": "Context_BP_%s",
     "summary": "These are context datasets for forestry customers",
     "tags": "contextservice,python,automate",
     "description": "Service Definition file for %s"
