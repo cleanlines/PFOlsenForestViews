@@ -31,7 +31,12 @@ class CreateSDFiles(BaseObject):
                 self.log(f"Creating:{sddraft_file},{sdfile}")
                 m = aprx.listMaps(map_name)[0]
                 arcpy.SignInToPortal(self._config.portal, self._config.user, self._config.password)
-                sharing_draft = m.getWebLayerSharingDraft("HOSTING_SERVER", "FEATURE", service_name)
+                #sharing_draft = m.getWebLayerSharingDraft("HOSTING_SERVER", "FEATURE", service_name)
+                # change for JXT
+                sharing_draft = m.getWebLayerSharingDraft("FEDERATED_SERVER", "MAP_IMAGE", service_name)
+                sharing_draft.federatedServerUrl = self._config.fed_server
+                sharing_draft.copyDataToServer = True
+                # change to Map Image server
                 sharing_draft.summary = service_object["summary"]
                 sharing_draft.tags = service_object["tags"]
                 sharing_draft.description = service_object["description"] + f'<br/>Item updated on {datetime.datetime.now().strftime("%d %B %Y %H:%M:%S")} by automated script.'

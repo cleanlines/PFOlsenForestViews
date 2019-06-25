@@ -11,9 +11,10 @@
     "description": "Service Definition file for %s"
   },
   "context": {
-    "servicename": "Context_BP_%s",
+    "servicename": "Context_BP_test_%s",
     "summary": "These are context datasets for forestry customers",
     "tags": "contextservice,python,automate",
     "description": "Service Definition file for %s"
-  }
+  },
+  "fed_server":"https://arcgis.pfolsen.com/arcgis"
 }
